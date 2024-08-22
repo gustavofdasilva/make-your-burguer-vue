@@ -11,21 +11,21 @@
                 <label for="bread">Escolha seu pão</label>
                 <select name="bread" id="bread" v-model="bread">
                     <option value="">Selecione o seu pão</option>
-                    <option v-for="bread in breadData" :key=bread.id :value="bread.tipo" >{{ bread.tipo }}</option>
+                    <option v-for="bread in breadData" :key=bread.id :value="bread.name" >{{ bread.name }}</option>
                 </select>
             </div>
             <div class="input-container">
                 <label for="meat">Escolha sua Carne</label>
                 <select name="meat" id="meat" v-model="meat">
                     <option value="">Selecione a sua carne</option>
-                    <option v-for="meat in meatData" :key=meat.id :value="meat.tipo">{{ meat.tipo }}</option>
+                    <option v-for="meat in meatData" :key=meat.id :value="meat.name">{{ meat.name }}</option>
                 </select>
             </div>
             <div id="opcionais-container" class="input-container">
                 <label id="opcionais-title" for="bread">Selecione os opcionais</label>
                 <div class="checkbox-container" v-for="optionalIngredient in optionalData" :key="optionalIngredient.id">
-                    <input type="checkbox" name="optional" v-model="optional" :value=optionalIngredient.tipo>
-                    <span>{{optionalIngredient.tipo}}</span>
+                    <input type="checkbox" name="optional" v-model="optional" :value=optionalIngredient.name>
+                    <span>{{optionalIngredient.name}}</span>
                 </div>
             </div>
             <div class="input-container">
@@ -66,12 +66,13 @@ import Message from './Message.vue';
         },
         methods: {
             async getIngredients() {
-                const req = await fetch('http://localhost:3000/ingredientes')
+                const req = await fetch('http://localhost:8080/ingredients')
                 const data = await req.json()
 
-                this.breadData = data.paes;
-                this.meatData = data.carnes;
-                this.optionalData = data.opcionais;
+                console.log(data)
+                this.breadData = data.breads;
+                this.meatData = data.meats;
+                this.optionalData = data.optionals;
             },
             async createBurguer(e) {
                 e.preventDefault()
@@ -79,12 +80,12 @@ import Message from './Message.vue';
                     name: this.name,
                     meat: this.meat,
                     bread: this.bread,
-                    optional: Array.from(this.optional),
+                    optionals: Array.from(this.optional),
                     status: "Solicitado"
                 }
 
                 const dataJson = JSON.stringify(data)
-                const req = await fetch("http://localhost:3000/burgers",{
+                const req = await fetch("http://localhost:8080/burger",{
                     method: "POST",
                     headers: {"Content-type":"application/json"},
                     body: dataJson

@@ -19,15 +19,18 @@
             <div>{{ burger.name }}</div>
             <div>{{ burger.bread }}</div>
             <div>{{ burger.meat }}</div>
-            <div>
-                <ul v-for="(opt, index) in burger.optional" :key="index">
+            <div v-if="burger.optionals[0]!=''">
+                <ul v-for="(opt, index) in burger.optionals" :key="index">
                 <li>{{ opt }}</li>
                 </ul>
             </div>
+            <div v-else style="margin: auto;">
+              <p style="font-size: .75em;">Sem opcionais adicionados</p>
+            </div>
             <div>
                 <select name="status" class="status" @change="updateBurger($event, burger.id)">
-                <option :value="s.tipo" v-for="s in status" :key="s.id" :selected="burger.status == s.tipo">
-                    {{ s.tipo }}
+                <option :value="s.name" v-for="s in status" :key="s.id" :selected="burger.status == s.name">
+                    {{ s.name }}
                 </option>
                 </select>
                 <button class="delete-btn" @click="deleteBurger(burger.id)">Cancelar</button>
@@ -67,17 +70,22 @@ import Message from './Message.vue';
                 setTimeout(()=>this.message=null,time)
             },
             async getBurgers() {
-                const req = await fetch("http://localhost:3000/burgers")
+                const req = await fetch("http://localhost:8080/burger")
                 const data = await req.json()
 
                 this.burgers = data
 
+                console.log(data)
                 
                 this.getStatus()
             },
             async getStatus() {
-                const req = await fetch("http://localhost:3000/status")
+                const req = await fetch("http://localhost:8080/status",{
+                  headers:{"content-type":"application/json;charset=UTF-8"}
+                })
                 const data = await req.json()
+
+                console.log(data)
 
                 this.status = data
             },
@@ -87,19 +95,20 @@ import Message from './Message.vue';
 
                 const dataJson = JSON.stringify({status: option})
                 
-                const req = await fetch(`http://localhost:3000/burgers/${id}`,{
+                const req = await fetch(`http://localhost:8080/burger/${id}`,{
                     method:"PATCH",
                     headers: {"Content-Type":"application/json"},
                     body: dataJson
                 })
 
                 const res = await req.json()
+                console.log(res)
 
                 this.writeMessage("Pedido atualizado",3000)
                 console.log(res)
             },
             async deleteBurger(id) {
-                const req = await fetch(`http://localhost:3000/burgers/${id}`,{
+                const req = await fetch(`http://localhost:8080/burger/${id}`,{
                     method:"DELETE",
                 })
 
@@ -151,6 +160,7 @@ import Message from './Message.vue';
   select {
     padding: 12px 6px;
     margin-right: 12px;
+    margin-left: -4px;
   }
 
   .delete-btn {
@@ -163,6 +173,7 @@ import Message from './Message.vue';
     margin: 0 auto;
     cursor: pointer;
     transition: .5s;
+    margin-left: -4px;
   }
   
   .delete-btn:hover {
