@@ -1,6 +1,6 @@
 <template>
   <div>
-    <Message :message=message v-show="message"/>
+    <Message :message=message :theme=messageTheme v-show="message"/>
     <div>
         <form id="burguer-form" @submit="createBurguer($event)">
             <div class="input-container">
@@ -52,6 +52,7 @@ import Message from './Message.vue';
                 optionalData: null,
 
                 message: null,
+                messageTheme: null,
                 
                 name: null,
                 bread: null,
@@ -65,6 +66,12 @@ import Message from './Message.vue';
             this.getIngredients()
         },
         methods: {
+            writeMessage(msg,time,theme) {
+                  console.log(msg,time)
+                  this.messageTheme = theme
+                  this.message = msg
+                  setTimeout(()=>this.message=null,time)
+            },
             async getIngredients() {
                 const req = await fetch('http://localhost:8080/ingredients')
                 const data = await req.json()
@@ -76,6 +83,17 @@ import Message from './Message.vue';
             },
             async createBurguer(e) {
                 e.preventDefault()
+
+                if(!this.name) {
+                  this.writeMessage("Digite seu nome!",3000,"warn")
+                  return
+                }
+                
+                if (!this.meat || !this.bread ) {
+                  this.writeMessage("Selecione ao menos um tipo de carne e um tipo de pão!",3000,"warn")
+                  return
+                }
+
                 const data = {
                     name: this.name,
                     meat: this.meat,
@@ -83,6 +101,8 @@ import Message from './Message.vue';
                     optionals: Array.from(this.optional),
                     status: "Solicitado"
                 }
+                  
+                console.log(data)
 
                 const dataJson = JSON.stringify(data)
                 const req = await fetch("http://localhost:8080/burger",{
@@ -93,15 +113,12 @@ import Message from './Message.vue';
                 
                 const res = await req.json()
 
-                this.message = "Pedido realizado com sucesso!"
-                setTimeout(()=>{
-                    this.message= null
-                },3000)
+                this.writeMessage("Pedido realizado com sucesso!",3000,"success")
 
-                this.name = ""
-                this.bread = ""
-                this.meat = ""
-                this.optional = ""
+                this.name = null
+                this.bread = null
+                this.meat = null
+                this.optional = []
             }
         }
     }

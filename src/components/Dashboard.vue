@@ -80,9 +80,7 @@ import Message from './Message.vue';
                 this.getStatus()
             },
             async getStatus() {
-                const req = await fetch("http://localhost:8080/status",{
-                  headers:{"content-type":"application/json;charset=UTF-8"}
-                })
+                const req = await fetch("http://localhost:8080/status")
                 const data = await req.json()
 
                 console.log(data)
